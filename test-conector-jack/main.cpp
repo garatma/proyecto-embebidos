@@ -7,9 +7,10 @@ bool valor_nuevo = false;
 
 ISR(ADC_vect)
 {
+	Serial.println("isr");
+	valor = ADC;
 	if (!valor_nuevo)
 	{
-		valor = ADC;
 		valor_nuevo = true;
 	}
 }
@@ -29,9 +30,10 @@ int main()
 
 	while (1)
 	{
+		Serial.println(valor);
 		if (valor_nuevo)
 		{
-			Serial.println(valor);
+
 			valor_nuevo = false;
 		}
 	}
