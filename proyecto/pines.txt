@@ -1,0 +1,9 @@
+SW3/SW4 (A4/A5): para controlar los efectos (-/+ distorsión, delay, etc.).
+				 en el código se llaman PUSHBUTTON_1 y PUSHBUTTON_2.
+				 implementar con sliders en aplicación.
+
+SW1/DIG_12(PIN12): para activar o no el efecto (desde el circuito, no software).
+			   	   en el código se llama FOOTSWITCH.
+				   implementar con un botón en aplicación.
+
+el SW2 y el PIN13 no se usan o no son necesarios.
