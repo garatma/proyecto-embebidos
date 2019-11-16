@@ -1,7 +1,11 @@
 from appJar import gui
 
-app=gui("Effect unit controller", "700x460")
+app=gui("Effect unit controller", "700x540")
 app.setFont(18)
+
+# different device options
+app.addLabelOptionBox("Device", ["COM0", "COM1", "COM2", "COM3", "COM4", "COM5",
+                                 "/dev/ttyACM0", "/dev/ttyACM1"])
 
 # every effect
 app.addRadioButton("Effect", "Bit Crusher")
