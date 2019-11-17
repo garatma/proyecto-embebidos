@@ -1,11 +1,32 @@
+# -*- coding: utf-8-*-
 from appJar import gui
+import serial
+import time
+import os
 
-app=gui("Effect unit controller", "700x540")
+# defining the gui
+app = gui("Effect unit controller", "700x540") 
 app.setFont(18)
 
-# different device options
-app.addLabelOptionBox("Device", ["COM0", "COM1", "COM2", "COM3", "COM4", "COM5",
-                                 "/dev/ttyACM0", "/dev/ttyACM1"])
+# defining the serial variable
+ser = None
+serial_tested = False
+
+def port_test(btn):
+    global ser
+    try:
+        ser = serial.Serial(app.getEntry("Port device"), 9600)
+        app.okBox("Port test", "Port confirmed.", parent=None)
+    except serial.serialutil.SerialException:
+        app.okBox("Port test", "Can't access specified port.", parent=None)
+
+# field to enter port device and button to test connectivity
+app.addLabelEntry("Port device",0,0)
+if (os.name in "posix"):
+    app.setEntry("Port device", "/dev/ttyACM0", callFunction=port_test)
+else:
+    app.setEntry("Port device", "COM0", callFunction=port_test)
+app.addButton("Confirm port",port_test,0,1)
 
 # every effect
 app.addRadioButton("Effect", "Bit Crusher")
@@ -46,11 +67,11 @@ effect_dictionary = {
         "Clean": 9
 }
 
-app.addHorizontalSeparator(colour="black")
+app.addHorizontalSeparator(colour="black", colspan=2)
 
 # initially, bit shifter is selected
-app.addLabel("Effect label", "Bit shift")
-app.addScale("Effect scale")
+app.addLabel("Effect label", "Bit shift", colspan=2)
+app.addScale("Effect scale", colspan=2)
 app.setFont("Effect scale")
 app.setScaleRange("Effect scale", scales[0][1], scales[0][2], scales[0][3])
 app.showScaleIntervals("Effect scale", scales[0][2]/4)
@@ -70,10 +91,17 @@ def change_effect(radio_button):
                       curr=scales[effect_number][3])
     app.showScaleIntervals("Effect scale", scales[effect_number][2]/4)
     app.setScale("Effect scale", scales[effect_number][3], callFunction=False)
+    if (ser != None):
+        ser.write(str.encode('e'))
+        ser.write(str.encode(str(effect_number)))
+        print(ser.read())
 
 # changes the scale array current value because the scale was moved
 def change_current_value(scale):
     scales[effect_number][3] = app.getScale("Effect scale")
+    if (ser != None):
+        ser.write(str.encode(str(scales[effect_number][3])))
+        print(ser.read())
 
 # set callbacks
 app.setScaleChangeFunction("Effect scale", change_current_value)
