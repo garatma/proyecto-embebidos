@@ -35,42 +35,38 @@ app.addRadioButton("Effect", "Daft Punk Octaver")
 app.addRadioButton("Effect", "Delay")
 app.addRadioButton("Effect", "Distortion")
 app.addRadioButton("Effect", "Fuzz")
-app.addRadioButton("Effect", "Metronome")
-app.addRadioButton("Effect", "Signal Generator")
 app.addRadioButton("Effect", "Tremolo")
 app.addRadioButton("Effect", "Clean")
 
-# values for respective scales: [name, min, max, current]
-scales = [ ["Bit shift",        "00001", "00017", "00002"],
-           ["Volume",           "00001", "32769", "16385"],
-           ["Octave pitch",     "00001", "00501", "00251"],
-           ["Delay time",       "00001", "02001", "01001"],
-           ["Distortion",       "00001", "32769", "16385"],
-           ["Fuzz",             "00001", "32769", "16385"],
-           ["BPM",              "00001", "00501", "00251"],
-           ["Frecuency",        "00001", "01025", "00513"],
-           ["Modulation speed", "00001", "01025", "00513"],
-           ["---", "00000", "00000", "00000"]
-         ]
+# values for respective scales: [name, min, max, current+1]
+# the '+1' is used to differentiate zero (new effect message) from effect
+# modifier value=0. the arduino must decrease the modifier by one.
+scales = [ ["Bit shift",        "00001", "00017", "00001"],
+           ["Volume",           "00001", "32769", "00001"],
+           ["Octave pitch",     "00001", "00501", "00001"],
+           ["Delay time",       "00001", "02001", "00001"],
+           ["Distortion",       "00001", "32769", "00001"],
+           ["Fuzz",             "00001", "32769", "00001"],
+           ["Modulation speed", "00001", "01025", "00001"],
+           ["No modifier",      "00001", "00001", "00001"]
+]
 
 # effect dictionary (to index scales array)
 effect_dictionary = {
-        "Bit Crusher": "00000",
-        "Booster": "00001",
-        "Daft Punk Octaver": "00002",
-        "Delay": "00003",
-        "Distortion": "00004",
-        "Fuzz": "00005",
-        "Metronome": "00006",
-        "Signal Generator": "00007",
-        "Tremolo": "00008",
-        "Clean": "00009"
+        "Bit Crusher":          "00000",
+        "Booster":              "00001",
+        "Daft Punk Octaver":    "00002",
+        "Delay":                "00003",
+        "Distortion":           "00004",
+        "Fuzz":                 "00005",
+        "Tremolo":              "00006",
+        "Clean":                "00007"
 }
 
 app.addHorizontalSeparator(colour="black", colspan=2)
 
 # initially, bit shifter is selected
-app.addLabel("Effect label", "Bit shift", colspan=2)
+app.addLabel("Effect label", scales[0][0], colspan=2)
 app.addScale("Effect scale", colspan=2)
 app.setFont("Effect scale")
 app.setScaleRange("Effect scale", int(scales[0][1])-1,
