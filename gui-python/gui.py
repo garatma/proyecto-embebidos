@@ -41,7 +41,8 @@ app.addRadioButton("Effect", "Clean")
 # values for respective scales: [name, min, max, current+1]
 # the '+1' is used to differentiate zero (new effect message) from effect
 # modifier value=0. the arduino must decrease the modifier by one.
-scales = [ ["Bit shift",        "00001", "00017", "00001"],
+scales = [ [None,               None,    None,    None],
+           ["Bit shift",        "00001", "00017", "00001"],
            ["Volume",           "00001", "32769", "00001"],
            ["Octave pitch",     "00001", "00501", "00001"],
            ["Delay time",       "00001", "02001", "00001"],
@@ -53,31 +54,31 @@ scales = [ ["Bit shift",        "00001", "00017", "00001"],
 
 # effect dictionary (to index scales array)
 effect_dictionary = {
-        "Bit Crusher":          "00000",
-        "Booster":              "00001",
-        "Daft Punk Octaver":    "00002",
-        "Delay":                "00003",
-        "Distortion":           "00004",
-        "Fuzz":                 "00005",
-        "Tremolo":              "00006",
-        "Clean":                "00007"
+        "Bit Crusher":          "00001",
+        "Booster":              "00002",
+        "Daft Punk Octaver":    "00003",
+        "Delay":                "00004",
+        "Distortion":           "00005",
+        "Fuzz":                 "00006",
+        "Tremolo":              "00007",
+        "Clean":                "00008"
 }
+
+effect_number = 1
+change_scale = True
 
 app.addHorizontalSeparator(colour="black", colspan=2)
 
 # initially, bit shifter is selected
-app.addLabel("Effect label", scales[0][0], colspan=2)
+app.addLabel("Effect label", scales[effect_number][0], colspan=2)
 app.addScale("Effect scale", colspan=2)
 app.setFont("Effect scale")
-app.setScaleRange("Effect scale", int(scales[0][1])-1,
-                                  int(scales[0][2])-1, 
-                                  int(scales[0][3])-1)
-app.showScaleIntervals("Effect scale", (int(scales[0][2])-1)/4)
+app.setScaleRange("Effect scale", int(scales[effect_number][1])-1,
+                                  int(scales[effect_number][2])-1, 
+                                  int(scales[effect_number][3])-1)
+app.showScaleIntervals("Effect scale",
+                       (int(scales[effect_number][2])-1)/4)
 app.showScaleValue("Effect scale", show=True)
-
-# (index of) effect currently selected
-effect_number = 0
-change_scale = True
 
 def digit_count(number):
     digits = 0
@@ -89,18 +90,22 @@ def digit_count(number):
 
 # changes the scale array current value because the scale was moved
 def change_current_value(scale):
-    number = app.getScale("Effect scale")+1
-    digits = digit_count(number)
-    counter = 0
-    new_number = ''
-    to_send = ''
-    for counter in range(0, 5-digits):
-        new_number += '0'
-    if (number != 0):
-        new_number += str(number)
-    scales[effect_number][3] = new_number
-    if (ser != None and change_scale):
-        ser.write(str.encode(new_number))
+    if (change_scale):
+        number = app.getScale("Effect scale")+1
+        digits = digit_count(number)
+        counter = 0
+        new_number = ''
+        to_send = ''
+        for counter in range(0, 5-digits):
+            new_number += '0'
+        if (number != 0):
+            new_number += str(number)
+        scales[effect_number][3] = new_number
+        if (ser != None and change_scale):
+            ser.write(str.encode(new_number))
+        print("change of modifier")
+        print("sent: ",str.encode(new_number))
+        print("")
 
 # changes the label, scale and its attributes because a new effect was selected
 def change_effect(radio_button):
@@ -111,15 +116,20 @@ def change_effect(radio_button):
     if (ser != None):
         ser.write(str.encode('00000'))
         ser.write(str.encode(effect_number_string))
+    print("change of effect")
+    print("sent: ",str.encode('00000'))
+    print("sent: ",str.encode(effect_number_string))
+    print("")
     change_scale = False
     app.setScaleRange("Effect scale",
                       int(scales[effect_number][1])-1,
                       int(scales[effect_number][2])-1,
                       curr=int(scales[effect_number][3])-1)
-    app.showScaleIntervals("Effect scale", (int(scales[effect_number][2])-1)/4)
+    app.showScaleIntervals("Effect scale",
+                           (int(scales[effect_number][2])-1)/4)
+    app.setScale("Effect scale", int(scales[effect_number][3])-1, callFunction=False)
     change_scale = True
     change_current_value(None)
-    app.setScale("Effect scale", int(scales[effect_number][3])-1, callFunction=False)
 
 # set callbacks
 app.setScaleChangeFunction("Effect scale", change_current_value)
