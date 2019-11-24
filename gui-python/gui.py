@@ -6,6 +6,8 @@ import os
 
 # defining the gui
 app = gui("Effect unit controller", "700x540") 
+app.setFg("white", override=False)
+app.setIcon("icon.gif")
 app.setFont(18)
 
 # defining the serial variable
@@ -103,9 +105,6 @@ def change_current_value(scale):
         scales[effect_number][3] = new_number
         if (ser != None and change_scale):
             ser.write(str.encode(new_number))
-        print("change of modifier")
-        print("sent: ",str.encode(new_number))
-        print("")
 
 # changes the label, scale and its attributes because a new effect was selected
 def change_effect(radio_button):
@@ -116,10 +115,6 @@ def change_effect(radio_button):
     if (ser != None):
         ser.write(str.encode('00000'))
         ser.write(str.encode(effect_number_string))
-    print("change of effect")
-    print("sent: ",str.encode('00000'))
-    print("sent: ",str.encode(effect_number_string))
-    print("")
     change_scale = False
     app.setScaleRange("Effect scale",
                       int(scales[effect_number][1])-1,
