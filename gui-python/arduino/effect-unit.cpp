@@ -1,8 +1,6 @@
 #include <avr/io.h>
 #include "Arduino.h"
-#include "EEPROM.h"
 #define PACKET_LENGHT 5
-#define DELAY_MAX 500
 
 //defining the output PWM parameters
 #define PWM_FREQ 0x00FF // pwm frequency - 31.3KHz
@@ -19,15 +17,7 @@ int input;
 unsigned int ADC_low, ADC_high;
 
 // variables for daft punk octaver
-int daft_punk_counter = 0, input_aux;
-
-// variables for delay
-byte delay_buffer[DELAY_MAX];
-unsigned int delay_counter = 0;
-
-// variables for tremolo
-int speed = 1, sample = 0, divider = 0;
-byte waveform;
+int daft_punk_counter = 0;
 
 void setup()
 {
@@ -98,12 +88,18 @@ void serialEvent()
 ISR(TIMER1_CAPT_vect) 
 {
 	// get ADC data
-	if (effect != 3 || daft_punk_counter >= effect_modifier)
+	if (effect != 2 || daft_punk_counter >= effect_modifier)
 	{
+		daft_punk_counter = 0;
 		ADC_low = ADCL; // you need to fetch the low byte first
 		ADC_high = ADCH;
 		input = ((ADC_high << 8) | ADC_low) + 0x8000; // make a signed 16b value
+		//write the PWM signal
+		OCR1AL = ((input + 0x8000) >> 8); // convert to unsigned, send out high byte
+		OCR1BL = input; // send out low byte
 	}
+
+
 
 	// switch effect
 	switch (effect)
@@ -113,46 +109,19 @@ ISR(TIMER1_CAPT_vect)
 			input = input<<effect_modifier;
 			break;
 		case 2:
-			// booster
-			input = map(input, -32768, 32768, -effect_modifier, effect_modifier);
-			break;
-		case 3:
 			// daft punk octaver
 			daft_punk_counter++;
-			if (daft_punk_counter >= effect_modifier)
-				daft_punk_counter = 0;
 			break;
-		case 4:
-			// delay
-			delay_buffer[delay_counter] = ADC_high;
-			delay_counter = (delay_counter + 1) % effect_modifier;
-			// make a signed 16b value
-		    input = (((delay_buffer[delay_counter] << 8) | ADC_low) + 0x8000) +
-				    				   (((ADC_high << 8) | ADC_low) + 0x8000); 
-			break;
-		case 5:
+		case 3:
 			// distortion
 			if (input > effect_modifier) input = effect_modifier;
 			break;
-		case 6:
+		case 4:
 			// fuzz
 			if(input > effect_modifier) 
-				input=effect_modifier;
-		    else if(input < -32768/2) 
-				input=-32768/2;
-			break;
-		case 7:
-			// tremolo
-			divider++;
-			if (divider == 4)
-			{
-				divider = 0;
-				sample = (sample + effect_modifier) % 1023;
-			}
-			EEPROM.get(sample, waveform);
-			ADC_low = map(ADC_low, 0,255, 0, waveform);
-			ADC_high = map(ADC_high, 0,255, 0, waveform);
-			input = ((ADC_high << 8) | ADC_low) + 0x8000; // make a signed 16b value
+				input = 16384;
+		    else if(input < -effect_modifier) 
+				input = -16384;
 			break;
 		default:
 			// default to clean
@@ -160,7 +129,7 @@ ISR(TIMER1_CAPT_vect)
 			break;
 	}
 
-	if (effect != 3 || daft_punk_counter >= effect_modifier)
+	if (effect != 2 || daft_punk_counter >= effect_modifier)
 	{
 		//write the PWM signal
 		OCR1AL = ((input + 0x8000) >> 8); // convert to unsigned, send out high byte

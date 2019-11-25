@@ -5,7 +5,7 @@ import time
 import os
 
 # defining the gui
-app = gui("Effect unit controller", "700x540") 
+app = gui("Effect unit controller", "600x370") 
 app.setFg("white", override=False)
 app.setIcon("icon.gif")
 app.setFont(18)
@@ -32,12 +32,9 @@ app.addButton("Confirm port",port_test,0,1)
 
 # every effect
 app.addRadioButton("Effect", "Bit Crusher")
-app.addRadioButton("Effect", "Booster")
 app.addRadioButton("Effect", "Daft Punk Octaver")
-app.addRadioButton("Effect", "Delay")
 app.addRadioButton("Effect", "Distortion")
 app.addRadioButton("Effect", "Fuzz")
-app.addRadioButton("Effect", "Tremolo")
 app.addRadioButton("Effect", "Clean")
 
 # values for respective scales: [name, min, max, current+1]
@@ -45,25 +42,19 @@ app.addRadioButton("Effect", "Clean")
 # modifier value=0. the arduino must decrease the modifier by one.
 scales = [ [None,               None,    None,    None],
            ["Bit shift",        "00001", "00017", "00001"],
-           ["Volume",           "00001", "32769", "00001"],
            ["Octave pitch",     "00001", "00501", "00001"],
-           ["Delay time",       "00001", "01501", "00001"],
            ["Distortion",       "00001", "32769", "00001"],
            ["Fuzz",             "00001", "32769", "00001"],
-           ["Modulation speed", "00001", "01020", "00001"],
            ["No modifier",      "00001", "00001", "00001"]
 ]
 
 # effect dictionary (to index scales array)
 effect_dictionary = {
         "Bit Crusher":          "00001",
-        "Booster":              "00002",
-        "Daft Punk Octaver":    "00003",
-        "Delay":                "00004",
-        "Distortion":           "00005",
-        "Fuzz":                 "00006",
-        "Tremolo":              "00007",
-        "Clean":                "00008"
+        "Daft Punk Octaver":    "00002",
+        "Distortion":           "00003",
+        "Fuzz":                 "00004",
+        "Clean":                "00005"
 }
 
 effect_number = 1
