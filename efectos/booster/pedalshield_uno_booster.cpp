@@ -20,7 +20,7 @@
 #define PWM_QTY 2 // 2 PWMs in parallel
 
 //other variables
-int input, vol_variable=10000;
+int input, vol_variable=30000;
 int counter=0;
 unsigned int ADC_low, ADC_high;
 

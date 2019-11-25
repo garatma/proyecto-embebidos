@@ -1,15 +1,8 @@
 #include <avr/io.h>
 #include "Arduino.h"
+#include "EEPROM.h"
 #define PACKET_LENGHT 5
-#define DELAY_MAX 1
-
-
-
-// TODO: evaluate if range of modifiers are reasonable
-// if not, reduce them -> remove unsigned from effect_modifier
-
-// TODO: ask if i can put waveform & delay_buffer in eeprom/flash
-
+#define DELAY_MAX 500
 
 //defining the output PWM parameters
 #define PWM_FREQ 0x00FF // pwm frequency - 31.3KHz
@@ -18,7 +11,7 @@
 
 // variables for effect/modifier switching
 char input_serial [PACKET_LENGHT] = {-1,-1,-1,-1,-1};
-int effect = 1, effect_modifier = 0;
+int effect = 8, effect_modifier = 0;
 bool change_effect = false;
 
 // variables for adc conversion
@@ -34,9 +27,7 @@ unsigned int delay_counter = 0;
 
 // variables for tremolo
 int speed = 1, sample = 0, divider = 0;
-const byte waveform[] =
-{
-}; // this waveform is used to modulate the volume of the output signal.
+byte waveform;
 
 void setup()
 {
@@ -82,28 +73,6 @@ int string_to_int(char string [PACKET_LENGHT])
 
 void loop()
 {
-	/*
-	if (Serial.available() > 0)
-	{
-		Serial.readBytes(input_serial, 5);
-
-		if (new_effect())
-		{
-			change_effect = true;
-			effect_modifier = 0;
-		}
-		else 
-		{
-			if (change_effect)
-			{
-				effect = string_to_int(input_serial);
-				change_effect = false;
-			}
-			else
-				effect_modifier = string_to_int(input_serial)-1;
-		}
-	}
-	*/
 }
 
 void serialEvent() 
@@ -129,9 +98,12 @@ void serialEvent()
 ISR(TIMER1_CAPT_vect) 
 {
 	// get ADC data
-	ADC_low = ADCL; // you need to fetch the low byte first
-	ADC_high = ADCH;
-	input = ((ADC_high << 8) | ADC_low) + 0x8000; // make a signed 16b value
+	if (effect != 3 || daft_punk_counter >= effect_modifier)
+	{
+		ADC_low = ADCL; // you need to fetch the low byte first
+		ADC_high = ADCH;
+		input = ((ADC_high << 8) | ADC_low) + 0x8000; // make a signed 16b value
+	}
 
 	// switch effect
 	switch (effect)
@@ -142,24 +114,16 @@ ISR(TIMER1_CAPT_vect)
 			break;
 		case 2:
 			// booster
-			input = map(input, -32768, +32768, -effect_modifier, effect_modifier);
+			input = map(input, -32768, 32768, -effect_modifier, effect_modifier);
 			break;
 		case 3:
 			// daft punk octaver
-			input_aux = input;
-			input = 0;
 			daft_punk_counter++;
 			if (daft_punk_counter >= effect_modifier)
-			{
 				daft_punk_counter = 0;
-				input = input_aux;
-			}
 			break;
 		case 4:
 			// delay
-			// for now, no ADC_LOW
-
-			// TODO: try assigning input
 			delay_buffer[delay_counter] = ADC_high;
 			delay_counter = (delay_counter + 1) % effect_modifier;
 			// make a signed 16b value
@@ -173,9 +137,9 @@ ISR(TIMER1_CAPT_vect)
 		case 6:
 			// fuzz
 			if(input > effect_modifier) 
-				input=32768;
-		    else if(input < -effect_modifier) 
-				input=-32768;
+				input=effect_modifier;
+		    else if(input < -32768/2) 
+				input=-32768/2;
 			break;
 		case 7:
 			// tremolo
@@ -183,15 +147,12 @@ ISR(TIMER1_CAPT_vect)
 			if (divider == 4)
 			{
 				divider = 0;
-				sample = (sample + effect_modifier) % 1024;
-
-				// the input signal is modulated here using a sinewave.
-				// this is not optimized: double assignation for input and adc
-				// variables
-				ADC_low = map(ADC_low, 0,255, 0, waveform[sample]);
-				ADC_high = map(ADC_high, 0,255, 0, waveform[sample]);
-				input = ((ADC_high << 8) | ADC_low) + 0x8000; // make a signed 16b value
+				sample = (sample + effect_modifier) % 1023;
 			}
+			EEPROM.get(sample, waveform);
+			ADC_low = map(ADC_low, 0,255, 0, waveform);
+			ADC_high = map(ADC_high, 0,255, 0, waveform);
+			input = ((ADC_high << 8) | ADC_low) + 0x8000; // make a signed 16b value
 			break;
 		default:
 			// default to clean
@@ -199,7 +160,10 @@ ISR(TIMER1_CAPT_vect)
 			break;
 	}
 
-	//write the PWM signal
-	OCR1AL = ((input + 0x8000) >> 8); // convert to unsigned, send out high byte
-	OCR1BL = input; // send out low byte
+	if (effect != 3 || daft_punk_counter >= effect_modifier)
+	{
+		//write the PWM signal
+		OCR1AL = ((input + 0x8000) >> 8); // convert to unsigned, send out high byte
+		OCR1BL = input; // send out low byte
+	}
 }

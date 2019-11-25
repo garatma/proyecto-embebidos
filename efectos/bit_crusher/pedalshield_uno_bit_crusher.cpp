@@ -19,7 +19,7 @@
 #define PWM_QTY 2 // 2 PWMs in parallel
 
 //other variables
-int input, bit_crush_variable=0;
+int input, bit_crush_variable=4;
 int counter=0;
 unsigned int ADC_low, ADC_high;
 

@@ -20,7 +20,7 @@
 int counter = 0;
 int counter2 = 0;
 int input;
-int dist_variable=10;
+int dist_variable=50;
 byte ADC_low, ADC_high;
 
 
