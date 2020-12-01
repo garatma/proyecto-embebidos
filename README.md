@@ -7,4 +7,4 @@ La unidad de efectos se enchufa al instrumento (guitarra, piano, etc.), modifica
 
 La unidad de efectos consiste de un Arduino UNO. Los efectos se realizan vía software con C/C++. La señal de entrada del instrumento y la de salida modificada al amplificador deben pasar por un circuito de acondicionamiento para eliminar el ruido. La interfaz gráfica portable, realizada en Python para PC, es la que le indica al pedal qué efecto debe realizar en determinado momento. La comunicación entre ambos es vía USB.
 
-Para más detalles mirar la [presentación]().
+Para más detalles mirar la [presentación](https://github.com/garatma/unidad-efectos-uno/raw/master/proyecto/informe/Presentaci%C3%B3n.pdf).
