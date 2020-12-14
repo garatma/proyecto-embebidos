@@ -5,9 +5,8 @@ Effect unit (like a guitar pedal) made with an Arduino UNO, controlled by a port
 # Details
 The effect unit is connected to the musical instrument with a 1/4" jack cable. The Arduino UNO converts its analogic input signal to digital, modifies it via software developed in C++, according to the user's input on the GUI application, developed in Python, running on the PC, which it itself is connected to the _pedal_ via serial port. The Arduino then converts the modified input back to analog and proceeds to transmit it to an amp, also connected with a 1/4" jack cable.
 
-
-![GUI](https://raw.githubusercontent.com/garatma/unidad-efectos-uno/master/proyecto/informe/gui.png)
 Here's is a picture of the PC GUI application, showcasing all of the effects that are possible. Every effect is progammed via software.
+![GUI](https://raw.githubusercontent.com/garatma/unidad-efectos-uno/master/proyecto/informe/gui.png)
 
 For more information, check out the [presentation](https://github.com/garatma/unidad-efectos-uno/raw/master/proyecto/informe/Presentaci%C3%B3n.pdf).
 
