@@ -1,10 +1,13 @@
-# Unidad Efectos UNO
+# Unidad Efectos UNO (Effect UNO Unit)
 
-Unidad o pedal de efectos realizado con un Arduino UNO, controlado con una interfaz gráfica portable realizada con Python.
+Effect unit (like a guitar pedal) made with an Arduino UNO, controlled by a portable PC GUI application.
 
-# Detalles
-La unidad de efectos se enchufa al instrumento (guitarra, piano, etc.), modifica su sonido según lo indicado por el/la ususario/a en la interfaz gráfica para PC y luego envía el resultado a un amplificado, también conectado al "pedal".
+# Details
+The effect unit is connected to the musical instrument with a 1/4" jack cable. The Arduino UNO converts its analogic input signal to digital, modifies it via software developed in C++, according to the user's input on the GUI application, developed in Python, running on the PC, which it itself is connected to the _pedal_ via serial port. The Arduino then converts the modified input back to analog and proceeds to transmit it to an amp, also connected with a 1/4" jack cable.
 
-La unidad de efectos consiste de un Arduino UNO. Los efectos se realizan vía software con C/C++. La señal de entrada del instrumento y la de salida modificada al amplificador deben pasar por un circuito de acondicionamiento para eliminar el ruido. La interfaz gráfica portable, realizada en Python para PC, es la que le indica al pedal qué efecto debe realizar en determinado momento. La comunicación entre ambos es vía USB.
+Here's is a picture of the PC GUI application, showcasing all of the effects that are possible. Every effect is progammed via software.
 
-Para más detalles mirar la [presentación](https://github.com/garatma/unidad-efectos-uno/raw/master/proyecto/informe/Presentaci%C3%B3n.pdf).
+For more information, check out the [presentation](https://github.com/garatma/unidad-efectos-uno/raw/master/proyecto/informe/Presentaci%C3%B3n.pdf).
+
+# Note
+This project is inspired by [this wonderful project](https://www.electrosmash.com/pedalshield-uno).
